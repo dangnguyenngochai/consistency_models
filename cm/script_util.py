@@ -20,8 +20,22 @@ def cm_train_defaults():
         end_scales=40,
         distill_steps_per_iter=50000,
         loss_norm="lpips",
-    )
+        )
 
+def cm_train_pseudo_huber():
+    return dict(
+        teacher_model_path="",
+        teacher_dropout=0.1,
+        training_mode="consistency_distillation",
+        target_ema_mode="fixed",
+        scale_mode="fixed",
+        total_training_steps=600000,
+        start_ema=0.0,
+        start_scales=40,
+        end_scales=40,
+        distill_steps_per_iter=50000,
+        loss_norm="pseudo_huber",
+        )
 
 def model_and_diffusion_defaults():
     """

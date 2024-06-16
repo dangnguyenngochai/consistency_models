@@ -11,6 +11,7 @@ from cm.script_util import (
     model_and_diffusion_defaults,
     create_model_and_diffusion,
     cm_train_defaults,
+    cm_train_pseudo_huber,
     args_to_dict,
     add_dict_to_argparser,
     create_ema_and_scales_fn,
@@ -161,11 +162,11 @@ def create_argparser():
         fp16_scale_growth=1e-3,
     )
     defaults.update(model_and_diffusion_defaults())
-    defaults.update(cm_train_defaults())
+    defaults.update(cm_train_pseudo_huber())
+    # defaults.update(cm_train_defaults())
     parser = argparse.ArgumentParser()
     add_dict_to_argparser(parser, defaults)
     return parser
-
 
 if __name__ == "__main__":
     main()

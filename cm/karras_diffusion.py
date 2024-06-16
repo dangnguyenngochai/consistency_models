@@ -8,6 +8,8 @@ import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 from piq import LPIPS
+from scipy.special import pseudo_huber as PSEUDO_HUBER
+
 from torchvision.transforms import RandomCrop
 from . import dist_util
 
@@ -50,8 +52,14 @@ class KarrasDenoiser:
         self.loss_norm = loss_norm
         if loss_norm == "lpips":
             self.lpips_loss = LPIPS(replace_pooling=True, reduction="none")
+        elif loss_norm == 'pseudo_huber':
+            # this line is trash, doing this just to make the usage of this variable the same `self.lpips_loss`
+            self.pseudo_huber_loss  = lambda delta, r: PSEUDO_HUBER(delta, r)
+        
+        # why we need normalization in the first place ?
         self.rho = rho
         self.num_timesteps = 40
+
 
     def get_snr(self, sigmas):
         return sigmas**-2
@@ -114,6 +122,8 @@ class KarrasDenoiser:
         teacher_diffusion=None,
         noise=None,
     ):
+        # Reframing the term "loss": here the loss in consistency distillation refer to the loss between teacher and student
+        
         if model_kwargs is None:
             model_kwargs = {}
         if noise is None:
@@ -230,6 +240,22 @@ class KarrasDenoiser:
                 )
                 * weights
             )
+        elif self.loss_norm == "pseudo_huber":
+            if x_start.shape[-1] < 256:
+                distiller = F.interpolate(distiller, size=224, mode="bilinear")
+                distiller_target = F.interpolate(
+                    distiller_target, size=224, mode="bilinear"
+                )
+
+            # this block is a rip-off from of lpips loss cause i don't know what the code is doing.
+            loss = (
+                self.pseudo_huber_loss(
+                    (distiller + 1) / 2.0,
+                    (distiller_target + 1) / 2.0,
+                )
+                * weights
+            )
+            pass
         else:
             raise ValueError(f"Unknown loss norm {self.loss_norm}")
 
