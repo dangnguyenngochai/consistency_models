@@ -1,4 +1,4 @@
-DATA_PATH='/kaggle/input/tiny-imagenet-challenge/TinyImageNet/train/0
+DATA_PATH="/kaggle/input/tiny-imagenet-challenge/TinyImageNet/train/0"
 EMA_PATH="/kaggle/working/checkpoint/edm_imagenet64_ema.pt"
 
 wget -i "https://openaipublic.blob.core.windows.net/consistency/edm_imagenet64_ema.pt" -O $EMA_PATH
